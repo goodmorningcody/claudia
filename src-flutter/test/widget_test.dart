@@ -9,17 +9,20 @@ void main() {
   testWidgets('Claudia Flutter app loads correctly', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const ProviderScope(child: ClaudiaFlutterApp()));
+    
+    // Pump and settle to let animations complete
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    // Verify that our app title is displayed.
-    expect(find.text('Claudia Flutter'), findsOneWidget);
-    expect(find.text('Flutter version of Claudia - GUI app and Toolkit for Claude Code'), findsOneWidget);
+    // Verify that our app title is displayed (appears twice - in title bar and main content).
+    expect(find.text('Claudia Flutter'), findsNWidgets(2));
+    expect(find.text('Phase 2: Core UI System Migration Complete!\nDesign System • Animations • Icons'), findsOneWidget);
     expect(find.text('Get Started'), findsOneWidget);
 
     // Tap the 'Get Started' button
     await tester.tap(find.text('Get Started'));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     // Verify that the snackbar appears
-    expect(find.text('Flutter Migration Phase 1 Complete!'), findsOneWidget);
+    expect(find.text('Phase 2 Complete: Core UI System Migration!'), findsOneWidget);
   });
 }

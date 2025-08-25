@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
+import 'shared/theme/app_theme.dart';
+import 'shared/constants/app_colors.dart';
+import 'shared/widgets/custom_button.dart';
+import 'shared/widgets/custom_card.dart';
+import 'shared/widgets/custom_icon.dart';
+import 'shared/widgets/custom_dialog.dart';
+import 'shared/widgets/animated_widgets.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,14 +41,7 @@ class ClaudiaFlutterApp extends StatelessWidget {
     return MaterialApp(
       title: 'Claudia Flutter',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Inter',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: AppTheme.darkTheme,
       home: const MainScreen(),
     );
   }
@@ -60,8 +60,8 @@ class MainScreen extends ConsumerWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.blue.shade900.withValues(alpha: 0.8),
-              Colors.purple.shade900.withValues(alpha: 0.8),
+              AppColors.primaryWithOpacity,
+              AppColors.secondary.withValues(alpha: 0.8),
             ],
           ),
         ),
@@ -69,63 +69,91 @@ class MainScreen extends ConsumerWidget {
           children: [
             // Custom title bar
             _buildTitleBar(context),
-            // Main content
+            // Main content with animations
             Expanded(
               child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Logo placeholder
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(
-                        Icons.desktop_mac,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    Text(
-                      'Claudia Flutter',
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Flutter version of Claudia - GUI app and Toolkit for Claude Code',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-                    ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Flutter Migration Phase 1 Complete!'),
+                child: FadeInAnimation(
+                  duration: const Duration(milliseconds: 800),
+                  delay: const Duration(milliseconds: 300),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Logo with scale animation
+                      ScaleInAnimation(
+                        delay: const Duration(milliseconds: 500),
+                        child: CustomCardVariants.elevated(
+                          padding: const EdgeInsets.all(24),
+                          child: CustomIcon(
+                            AppIcons.agent,
+                            size: IconSize.extraLarge,
+                            color: AppColors.primary,
                           ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Get Started'),
-                    ),
-                  ],
+                      const SizedBox(height: 32),
+                      SlideInAnimation(
+                        direction: SlideDirection.up,
+                        delay: const Duration(milliseconds: 700),
+                        child: Text(
+                          'Claudia Flutter',
+                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SlideInAnimation(
+                        direction: SlideDirection.up,
+                        delay: const Duration(milliseconds: 900),
+                        child: Text(
+                          'Phase 2: Core UI System Migration Complete!\nDesign System • Animations • Icons',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 48),
+                      SlideInAnimation(
+                        direction: SlideDirection.up,
+                        delay: const Duration(milliseconds: 1100),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomButtonConstructors.outline(
+                              onPressed: () {
+                                CustomDialog.show(
+                                  context: context,
+                                  title: const Text('Phase 2 Complete'),
+                                  content: const Text('Core UI System Migration has been implemented successfully!'),
+                                );
+                              },
+                              child: const Text('Show Dialog'),
+                            ),
+                            const SizedBox(width: 16),
+                            CustomButtonConstructors.primary(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text('Phase 2 Complete: Core UI System Migration!'),
+                                    backgroundColor: AppColors.success,
+                                  ),
+                                );
+                              },
+                              child: const Text('Get Started'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      SlideInAnimation(
+                        direction: SlideDirection.up,
+                        delay: const Duration(milliseconds: 1300),
+                        child: _buildFeatureCards(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -139,43 +167,58 @@ class MainScreen extends ConsumerWidget {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.3),
+        color: AppColors.surfaceWithOpacity,
         border: Border(
           bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: AppColors.outlineWithOpacity,
           ),
         ),
       ),
       child: Row(
         children: [
           const SizedBox(width: 16),
+          CustomIcon(
+            AppIcons.agent,
+            size: IconSize.small,
+            color: AppColors.primary,
+          ),
+          const SizedBox(width: 12),
           Text(
-            'Claudia',
+            'Claudia Flutter',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.white,
+              color: AppColors.onSurface,
               fontWeight: FontWeight.w500,
             ),
           ),
           const Spacer(),
-          // Window controls placeholder
+          // Window controls with proper styling
           Row(
             children: [
-              _buildWindowButton(Colors.green, () async {
-                await windowManager.minimize();
-              }),
+              WindowControlButton(
+                type: WindowControlType.minimize,
+                onPressed: () async {
+                  await windowManager.minimize();
+                },
+              ),
               const SizedBox(width: 8),
-              _buildWindowButton(Colors.yellow, () async {
-                bool isMaximized = await windowManager.isMaximized();
-                if (isMaximized) {
-                  await windowManager.unmaximize();
-                } else {
-                  await windowManager.maximize();
-                }
-              }),
+              WindowControlButton(
+                type: WindowControlType.maximize,
+                onPressed: () async {
+                  bool isMaximized = await windowManager.isMaximized();
+                  if (isMaximized) {
+                    await windowManager.unmaximize();
+                  } else {
+                    await windowManager.maximize();
+                  }
+                },
+              ),
               const SizedBox(width: 8),
-              _buildWindowButton(Colors.red, () async {
-                await windowManager.close();
-              }),
+              WindowControlButton(
+                type: WindowControlType.close,
+                onPressed: () async {
+                  await windowManager.close();
+                },
+              ),
             ],
           ),
           const SizedBox(width: 16),
@@ -184,15 +227,67 @@ class MainScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWindowButton(Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 12,
-        height: 12,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
+  Widget _buildFeatureCards() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildFeatureCard(
+          icon: AppIcons.settings,
+          title: 'Design System',
+          description: 'Custom components\nwith variants',
+        ),
+        const SizedBox(width: 16),
+        _buildFeatureCard(
+          icon: AppIcons.image,
+          title: 'Animations',
+          description: 'Smooth transitions\nand effects',
+        ),
+        const SizedBox(width: 16),
+        _buildFeatureCard(
+          icon: AppIcons.agent,
+          title: 'Icons',
+          description: 'Lucide icon system\nintegrated',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeatureCard({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return AnimatedCard(
+      padding: const EdgeInsets.all(16),
+      child: SizedBox(
+        width: 120,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomIcon(
+              icon,
+              size: IconSize.large,
+              color: AppColors.primary,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.onSurface,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.onSurfaceVariant,
+                fontSize: 12,
+              ),
+            ),
+          ],
         ),
       ),
     );
